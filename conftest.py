@@ -2,8 +2,6 @@ import logging
 import pytest
 
 
-
-
 @pytest.fixture(scope="session", autouse=True, name="print_request_info")
 def test_show_request_properties(request):
     # print(f"Test Function Name: {request.node.name}")
