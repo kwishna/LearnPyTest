@@ -49,6 +49,10 @@ def test_show_request_properties(request):
         'listnames', 'name', 'nodeid', 'own_markers', 'parent', 'path', 'perform_collect', 'pytest_collectreport', 'pytest_collectstart', 'pytest_runtest_logreport',
         'repr_failure', 'session', 'setup', 'shouldfail', 'shouldstop', 'startdir', 'startpath', 'stash', 'teardown', 'testscollected', 'testsfailed', 'trace', 'warn'
     ]
-
-
     """
+class MyLogHandler(logging.Handler):
+    def __init__(self):
+        super().__init__()
+        self.setFormatter(
+            logging.Formatter('%(asctime)s %(levelname)s %(name)s %(filename)s:%(lineno)d %(module)s %(message)s')
+        )
