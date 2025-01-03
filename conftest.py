@@ -56,3 +56,11 @@ class MyLogHandler(logging.Handler):
         self.setFormatter(
             logging.Formatter('%(asctime)s %(levelname)s %(name)s %(filename)s:%(lineno)d %(module)s %(message)s')
         )
+
+def pytest_configure():
+    logging.getLogger('test').setLevel(logging.INFO)
+    logging.getLogger('mathlib').setLevel(logging.WARNING)
+
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+    logger.addHandler(MyLogHandler())
