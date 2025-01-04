@@ -13,3 +13,10 @@ class TestDB:
         db.get_car_price = MagicMock(return_value=3)
         assert db.get_car_price('audi') == 3
 
+    @pytest.mark.mock2
+    def test_car_price2(self):
+        db = ProductionDB()
+        db.method = MagicMock()
+        db.method(3, 4, 5, key='value')
+        db.method.assert_called_with(3, 4, 5, key='value')
+
