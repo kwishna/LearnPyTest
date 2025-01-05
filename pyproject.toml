@@ -1,0 +1,97 @@
+[tool.poetry]
+name = "pytest-tutorials"
+version = "0.1.0"
+description = "Krishna Kumar Singh"
+authors = ["kwishna <kwishna@gmail.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pytest = "^8.3.4"
+pytest-xdist = "^3.6.1"
+pylint = "^3.3.2"
+python-dotenv = "^1.0.1"
+flake8 = "^7.1.1"
+aiohttp = "^3.11.9"
+junit-xml = "^1.9"
+pytest-rerunfailures = "^15.0"
+allure-pytest = "^2.13.5"
+async-property = "^0.2.2"
+pytest-asyncio = "^0.24.0"
+ipdb = "^0.13.13"
+configparser = "^7.1.0"
+pytest-env = "^1.1.5"
+pytest-pikachu = "^1.0.0"
+soft-assert = "^1.0.5"
+faker = "^33.1.0"
+pytest-cov = "^6.0.0"
+allure-python-commons = "^2.13.5"
+pytest-dependency = "^0.6.0"
+requests = "^2.32.3"
+
+[tool.black]
+line-length=120
+
+[tool.coverage]
+[tool.coverage.run]
+omit = [
+    ".venv/*"
+]
+
+[tool.poe.tasks]
+clean = "rm -rf .coverage .pytest_cache ./**/__pycache__ dist htmlclov"
+format = {cmd ="black ."}
+test = "pytest -s -v --cov=tests"
+test-unit-cov = "pytest --junitxml=coverage/junit.xml --cov=tests --cov-report xml:coverage/coverage.xml --cov--report html:build/reports --cov-fail-under=90 -o log_cli=true --log-cli-level=TRACE -m \" not smoke\""
+flake8 = 'flake8 tests'
+lint = ["flake8", "mypy", "pylint"]
+mypy = "mypy tests"
+pylint = "pylint tests"
+security = ["bandit"]
+style = "black tests --check --diff"
+ruff = ["ruff check tests"]
+check = ["format", "style", "lint", "ruff", "test-unit-cov"]
+
+#[tool.pytest.ini_options]
+#asyncio_mode = "strict"
+#addopts = [
+#    "--junitxml=report=${timestamp}.xml",
+#    "--alluredir=allure-results",
+#    "--clean-alluredir",
+#    "--asyncio-task-timeout=2400",
+#    "--cov-fail-under=90",
+#    "--cov-report=html:pytest",
+#    "--log-file=reports/logger.log",
+#    "--log-cli-level=trace"
+#]
+#asyncio_default_fixture_loop_scope='function'
+#default_loop_scope='function'
+#testpaths = "tests"
+#filterWarnings = [
+#    "ignore::DeprecationWarning"
+#]
+
+[tool.poetry.group.dev.dependencies]
+gitpython="^3.1.37"
+pytest-cov="^6.0.0"
+poethepoet="0.31.1"
+pydocstyle="6.3.0"
+types-decorator="5.1.8.20240310"
+pylint="3.3.2"
+lint="1.2.1"
+flake8="7.1.1"
+black="24.10.0"
+bandit="1.8.0"
+
+[tool.pylint]
+disable = [
+    "too-few-public-methods"
+]
+
+[tool.mypy]
+ignore_missing_imports = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
