@@ -20,3 +20,14 @@ class TestDB:
         db.method(3, 4, 5, key='value')
         db.method.assert_called_with(3, 4, 5, key='value')
 
+    @mock.patch("requests.get")
+    def test_mock_module_method(self, mock_req):
+        mock_resp = Mock()
+        mock_resp.status_code = 200
+        mock_resp.json.return_value = { "id": 1 }
+
+        mock_req.return_value = mock_resp
+
+        data = requests.get("https://localhost")
+        assert data.status_code == 200
+        assert data.json() == { "id": 1 }
