@@ -50,12 +50,15 @@ def test_show_request_properties(request):
         'repr_failure', 'session', 'setup', 'shouldfail', 'shouldstop', 'startdir', 'startpath', 'stash', 'teardown', 'testscollected', 'testsfailed', 'trace', 'warn'
     ]
     """
-class MyLogHandler(logging.Handler):
-    def __init__(self):
-        super().__init__()
-        self.setFormatter(
-            logging.Formatter('%(asctime)s %(levelname)s %(name)s %(filename)s:%(lineno)d %(module)s %(message)s')
-        )
+# class MyLogHandler(logging.Handler):
+#     def __init__(self):
+#         super().__init__()
+#         self.setFormatter(
+#             logging.Formatter('%(asctime)s %(levelname)s %(name)s %(filename)s:%(lineno)d %(module)s %(message)s')
+#         )
+#
+#     def emit(self, record):
+#         super().emit(record)
 
 def pytest_configure():
     logging.getLogger('test').setLevel(logging.INFO)
@@ -63,4 +66,9 @@ def pytest_configure():
 
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
-    logger.addHandler(MyLogHandler())
+    # logger.addHandler(MyLogHandler())
+
+# def pytest_collection_modifyitems(items):
+
+# def pytest_addoption(parser):
+#     parser.addoption("--base-url", action="store", default="https://localhost")
