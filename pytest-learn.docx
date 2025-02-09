@@ -1,0 +1,27 @@
+------------------------------ Soft Assert ---------------------------------
+Assertion is performed immediately after the call check(),
+but the expected result is obtained only after exit the context manager verify()
+
+Quick example:
+
+from  soft_assert import check, verify
+
+def test_something():
+    with verify():
+        check(1 == 1)
+        check(2 > 1, 'Message if test failed')
+        check('one' != 'two', 'Some message')
+
+----------------------------------------------------------------------------
+Using --setup-show: This command shows the setup and teardown phases of each fixture during test execution,
+providing insights into their order.
+$ pytest --setup-show
+
+Using --fixtures-per-test: This command lists all fixtures used by a specific test,
+helping you understand dependencies.
+$ pytest --fixtures-per-test <test_file>::<test_function>
+
+----------------------------------------------------------------------------
+
+
+
