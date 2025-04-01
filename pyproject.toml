@@ -84,6 +84,38 @@ flake8="7.1.1"
 black="24.10.0"
 bandit="1.8.0"
 
+#[[tool.poetry-source]]
+#name = "pypi-all"
+#url = "https://nexus-domain/nexus/repository/pypi-all-simple"
+
+#[tool.pytest.ini_options]
+#addopts = ""
+#testpaths = "tests"
+#log_cli_date_formats = "%Y-%m-%d %H:%M:%S %Z"
+#log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s"
+#log_cli_level = "INFO"
+
+[tool.poe.tasks]
+clean = """
+rm -rf .coverage
+        .mypy_cache
+        .pytest_cache
+        ./**/__pycache__
+        dist
+        htmlcov
+"""
+
+format = {cmd = "black ."}
+test = "pytest -n logical --dist worksteal --reruns $RERUNS --reruns-delay 30 -s -v --setup-show --log-file report/run.log --junitxml=report/report.xml -m \"skip\""
+
+bandit = "bandit -r src --exclude tests"
+flake8 = "src"
+lint = ["flake8 src"]
+mypy = "mypy src"
+pylint ="pylint src"
+safety = "safety check"
+style = "black --check --diff"
+
 [tool.pylint]
 disable = [
     "too-few-public-methods"
@@ -91,6 +123,10 @@ disable = [
 
 [tool.mypy]
 ignore_missing_imports = true
+
+[tool.black]
+line-length = 120
+target-version = ['py313']
 
 [build-system]
 requires = ["poetry-core"]
