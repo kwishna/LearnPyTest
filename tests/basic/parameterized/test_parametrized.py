@@ -16,6 +16,7 @@ def is_palindrome(string):
     ("abc", False),
     ("abab", False),
 ])
+
 @pytest.mark.param
 def test_is_palindrome(maybe_palindrome, expected_result):
     assert is_palindrome(maybe_palindrome) == expected_result
