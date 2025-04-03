@@ -1,5 +1,11 @@
+import io
 import logging
+from collections import defaultdict
+
+import allure
 import pytest
+
+log_stream = defaultdict(io.StringIO)
 
 
 @pytest.fixture(scope="session", autouse=True, name="print_request_info")
@@ -15,6 +21,51 @@ def test_show_request_properties(request):
     # print(f"Test Function Keywords: {request.keywords}")
     print(f"{dir(request.node)}")
     """
+    The name of the fixture function can later be referenced to cause its invocation ahead of running tests:
+    test modules or classes can use the ``pytest.mark.usefixtures(fixturename)`` marker.
+
+    Test functions can directly use fixture names as input arguments in which 
+    case the fixture instance returned from the fixture function will be injected.
+
+    Fixtures can provide their values to test functions using ``return`` or ``yield`` statements.
+    
+    When using ``yield`` the code block after the ``yield`` statement is executed as teardown code regardless of the test
+    outcome, and must yield exactly once.
+
+    :param scope:
+        The scope for which this fixture is shared; one of ``"function"``
+        (default), ``"class"``, ``"module"``, ``"package"`` or ``"session"``.
+
+        This parameter may also be a callable which receives ``(fixture_name, config)``
+        as parameters, and must return a ``str`` with one of the values mentioned above.
+
+        See :ref:`dynamic scope` in the docs for more information.
+
+    :param params:
+        An optional list of parameters which will cause multiple invocations
+        of the fixture function and all of the tests using it.
+        The current parameter is available in ``request.param``.
+
+    :param autouse:
+        If True, the fixture func is activated for all tests that can see it.
+        If False (the default), an explicit reference is needed to activate
+        the fixture.
+
+    :param ids:
+        Sequence of ids each corresponding to the params so that they are
+        part of the test id. If no ids are provided they will be generated
+        automatically from the params.
+
+    :param name:
+        The name of the fixture. This defaults to the name of the decorated
+        function. If a fixture is used in the same module in which it is
+        defined, the function name of the fixture will be shadowed by the
+        function arg that requests the fixture; one way to resolve this is to
+        name the decorated function ``fixture_<fixturename>`` and then use
+        ``@pytest.fixture(name='<fixturename>')``.
+    
+    ====================================================================================================================
+    
     'request' has following attributes
     [
         'addfinalizer', 'applymarker', 'cls', 'config', 'fixturename', 'fixturenames', 'fspath',
@@ -68,7 +119,71 @@ def pytest_configure():
     logger.setLevel(logging.INFO)
     # logger.addHandler(MyLogHandler())
 
-# def pytest_collection_modifyitems(items):
+def pytest_addoption(parser):
+    parser.addini(
+        "implicit_marker",
+        "An implicit marker to assign to any test otherwise unmarked"
+    )
 
-# def pytest_addoption(parser):
-#     parser.addoption("--base-url", action="store", default="https://localhost")
+def pytest_collection_modifyitems(session, config, items):
+    implicit_marker = config.getini("implicit_marker")
+    if not implicit_marker:
+        return
+
+    markers = []
+    for line in config.getini("markers"):
+        mark, rest = line.split(":", 1)
+        if '(' in mark:
+            mark, rest = mark.split("(", 1)
+        markers.append(mark)
+
+    all_markers = ' or '.join(markers)
+    if not all_markers:
+        return
+
+    # ALL TESTS RUN CONCURRENTLY.
+    for item in items.copy():
+        all_markers_names = [item.name for item in list(item.iter_marker_names())]
+        item_own_markers = item.own_markers
+        flag = False
+        for item_args in item_own_markers:
+            args = item_args.args
+            if True in args or len(args) == 0 or 'skip' in all_markers_names:
+                items.remove(item)
+                flag = True
+                break
+            if item_args.name == 'jira':
+                for tc in item_args.args:
+                    tc_id = tc.replace("_", "-")
+                    item.add_markers(allure.testcase(url=f'{tc_id}', name=id))
+        if not flag:
+            item.add_markers(pytest.mark.asyncio_cooperative)
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    print(f"Before running test: {item.name}")
+    outcome = yield  # Run the actual test
+    report = outcome.get_result()
+    print(f"After running test: {item.name}")
+
+    # The code before yield runs before the test.
+    # The code after yield runs after the test.
+    # outcome.get_result() can be called to get the test result or catch exceptions.
+
+
+    if report.when == 'teardown':
+        if report.failed:
+            allure.attach(
+                body=f"Test {item.name} failed during teardown.",
+                name="Teardown Failure Info",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            # allure.attach(screenshot, name="Screenshot", attachment_type=allure.attachment_type.PNG)
+
+        elif report.passed:
+            allure.attach(
+                body=f"Test {item.name} passed and teardown completed.",
+                name="Teardown Success Info",
+                attachment_type=allure.attachment_type.TEXT
+            )
