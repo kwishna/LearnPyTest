@@ -29,6 +29,11 @@ pytest-cov = "^6.0.0"
 allure-python-commons = "^2.13.5"
 pytest-dependency = "^0.6.0"
 requests = "^2.32.3"
+asyncmock = "^0.4.2"
+pytest-mock = "^3.14.0"
+safety = "^3.5.1"
+black = "^25.1.0"
+pytest-order = "^1.3.0"
 
 [tool.coverage]
 [tool.coverage.run]
@@ -46,11 +51,12 @@ mypy = "mypy tests"
 pylint = "pylint tests"
 security = ["bandit"]
 style = "black tests --check --diff"
-ruff = ["ruff check tests"]
-check = ["format", "style", "lint", "ruff", "test-unit-cov"]
-test = "pytest -n logical --dist worksteal --reruns $RERUNS --reruns-delay 30 -s -v --cov=tests --setup-show --log-file report/run.log --junitxml=report/report.xml -m \"skip\""
-bandit = "bandit -r src --exclude tests"
+bandit = "bandit -r src --exclude tests -c pyproject.toml"
 safety = "safety check"
+ruff = ["ruff check tests"]
+check = ["format", "style", "lint", "ruff", "test-unit-cov", "bandit", "safety"]
+test = "pytest -n logical --dist worksteal --reruns $RERUNS --reruns-delay 30 -s -v --cov=tests --setup-show --log-file report/run.log --junitxml=report/report.xml -m \"skip\""
+
 
 #[tool.pytest.ini_options]
 #asyncio_mode = "strict"
@@ -80,7 +86,7 @@ types-decorator="5.1.8.20240310"
 pylint="3.3.2"
 lint="1.2.1"
 flake8="7.1.1"
-black="24.10.0"
+#black="24.10.0"
 bandit="1.8.0"
 
 #[[tool.poetry-source]]
@@ -104,7 +110,7 @@ ignore_missing_imports = true
 
 [tool.black]
 line-length = 120
-target-version = ['py313']
+#target-version = ['py312']
 
 [build-system]
 requires = ["poetry-core"]
