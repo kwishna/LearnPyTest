@@ -7,3 +7,5 @@ reports
 cov_annotate
 allure-results
 other-resources
+.coverage
+*.odt#
